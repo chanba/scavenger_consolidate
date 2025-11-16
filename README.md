@@ -82,10 +82,20 @@ address 2 → account A + 2, index 0
 …
 ```
 
+Accounts are used as the “address index”:
+For --numaddresses N and --account A:
+```
+address 0 → account A + 0, path A+0'/0/0
+address 1 → account A + 1, path A+1'/0/0
+…
+payment: m / 1852' / 1815' / (A + i)' / 0 / 0
+stake: m / 1852' / 1815' / (A + i)' / 2 / 0
+```
+
 This matches the behavior of tools that show “index N” as account N, index 0.
 Enable with:
 
---nocturne-compat
+```--nocturne-compat```
 
 Note: --nocturne-compat only affects derived addresses (--numaddresses and --derive-address-only). CSV behavior is unchanged and uses standard ACCOUNT' / 0 / INDEX.
 
