@@ -1,7 +1,8 @@
 # Midnight Scavenger Consolidation — v0.1
 
 **Goal:** consolidate Scavenger Mine allocations from many mining wallets into a **single Cardano address** using the official `donate_to` API endpoint.  
-No wallet plugins. No node sync. 100% CLI.
+
+**Why?** Most solutions depend on wallet integration or otherwise. This only requires your mnemonic. And since the mnemonics used in the scavenger hunt are throwaway, why not use that to derive the entire chain?
 
 > This toolkit uses **CIP‑8 message signing** and the **`/donate_to/{dest}/{original}/{signature}`** endpoint.  
 > It supports **15‑word (Yoroi)** and **24‑word** mnemonics and derives Cardano **base** addresses (`addr1…`) via **CIP‑1852**.
