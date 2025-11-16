@@ -2,25 +2,14 @@
 
 **Goal:** consolidate Scavenger Mine allocations from many mining wallets into a **single Cardano address** using the official `donate_to` API endpoint.  
 
-**Why?** Most solutions depend on wallet integration or otherwise. This only requires your mnemonic. And since the mnemonics used in the scavenger hunt are throwaway, why not use that to derive the entire chain?
+**Why?** Most solutions depend on wallet integration or otherwise. This only requires your 15 or 24 word mnemonic. 
 
-> This toolkit uses **CIP‑8 message signing** and the **`/donate_to/{dest}/{original}/{signature}`** endpoint.  
-> It supports **15‑word (Yoroi)** and **24‑word** mnemonics and derives Cardano **base** addresses (`addr1…`) via **CIP‑1852**.
+Since the mnemonics used in the scavenger hunt are throwaway, why not use that to derive the entire chain?
 
----
-
-## Contents
-
-- `consolidate_scavenger_slim.py` — **recommended** minimal tool
-  - external chain only (ROLE=0)
-  - no stats/verification calls
-  - clean, timestamped **run folder** per job
-  - **`--derive-address-only`**: print derived addresses and exit
-- `consolidate_scavenger.py` — advanced tool (kept for power users)
-  - same core flow, **plus** stats checks (optional), separate UA/jitter/backoff knobs
-- `test_stats_rate_limit.py` — tiny probe to observe 429/rate‑limit behavior with different User‑Agents
-
----
+Well, there are a few dependencies, the most important being:
+- Python 3.10 or something newer, maybe?
+- Cardano-addresses: https://github.com/IntersectMBO/cardano-addresses
+- Cardano-signer: https://github.com/gitmachtl/cardano-signer
 
 ## Requirements
 
@@ -52,7 +41,7 @@ Internally, we construct an enterprise address from the **payment xpub** and the
 ### 1) Derive addresses only (no signing, no API calls)
 
 ```bash
-python3 consolidate_scavenger_slim.py \
+python3 consolidate_scavenger.py \
   --mnemonic "your 24 or 15 words ..." \
   --numaddresses 25 \
   --account 0 \
@@ -74,7 +63,7 @@ python3 consolidate_scavenger_slim.py \
 ### 2) Dry‑run a consolidation (signatures only)
 
 ```bash
-python3 consolidate_scavenger_slim.py \
+python3 consolidate_scavenger.py \
   --mnemonic "your 24 or 15 words ..." \
   --destination-addr "addr1qDESTINATION..." \
   --csv donors.csv \
@@ -88,12 +77,12 @@ index,external,address
 0,1,addr1q...
 1,1,addr1q...
 ```
-> The `external` column is **ignored** in the slim tool (we always treat donors as external chain).
+> The `external` column is **ignored** in this simplified tool (we always treat donors as external chain).
 
 ### 3) Live consolidation
 
 ```bash
-python3 consolidate_scavenger_slim.py \
+python3 consolidate_scavenger.py \
   --mnemonic "your 24 or 15 words ..." \
   --destination-addr "addr1qDESTINATION..." \
   --csv donors.csv \
@@ -180,23 +169,12 @@ The tool classifies such a `success` as **unassigned** in the job summary.
 
 ### Full consolidator
 
-`consolidate_scavenger.py` has a few extra knobs:
+`consolidate_scavenger_maxi.py` has a few extra knobs that you won't get here:
 - separate **User‑Agent** and **jittered pacing** for stats calls
 - ability to **verify recipient** or **filter donors that mined** (not needed for normal runs)
 - keep or disable with flags; defaults are polite and resume‑safe
 
-### Rate‑limit probe
-
-If you need to test how the stats endpoint behaves with different User‑Agents and pacing:
-```bash
-python3 test_stats_rate_limit.py \
-  --addr addr1q... \
-  --ua-mode curl \
-  --count 10 \
-  --delay 0.2 \
-  --honor-retry-after
-```
-(*The slim tool doesn’t call stats at all.*)
+(*This simplified tool doesn’t call stats at all.*)
 
 ---
 
@@ -228,10 +206,10 @@ python3 test_stats_rate_limit.py \
 
 ---
 
-## CLI reference (slim)
+## CLI reference
 
 ```
-usage: consolidate_scavenger_slim.py
+usage: consolidate_scavenger.py
   --mnemonic "…"
   [--derive-address-only --numaddresses N]
   [--destination-addr addr1…]
@@ -252,17 +230,8 @@ usage: consolidate_scavenger_slim.py
 
 ---
 
-## Download
-
-- Slim tool: [`consolidate_scavenger_slim.py`](consolidate_scavenger_slim.py)
-- Full tool: [`consolidate_scavenger.py`](consolidate_scavenger.py)
-- Stats probe: [`test_stats_rate_limit.py`](test_stats_rate_limit.py)
-
-> If you move these files elsewhere, update paths in your commands accordingly.
-
----
-
 ## Disclaimer
 
-Use at your own risk. Verify small batches first (e.g., `--dry-run` and a few addresses) before processing hundreds. Always keep secure backups of your mnemonic and logs. This toolkit is community‑authored and not affiliated with Midnight/Genius X.
+This project is currently a work in progress. It is provided as-is, without any warranty of correctness, functionality, or fitness for any particular purpose. There is no guarantee that it works as intended, and it may contain bugs, incomplete features, or incorrect cryptographic behavior.
 
+Do not use this software for security-critical or production purposes. Use at your own risk. Use at your own risk. Verify small batches first (e.g., `--dry-run` and a few addresses) before processing hundreds. Always keep secure backups of your mnemonic and logs. This toolkit is community‑authored and not affiliated with Midnight, or anyone else. This software is licensed under the MIT license. Have at it.
