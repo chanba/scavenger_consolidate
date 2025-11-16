@@ -36,7 +36,7 @@ Internally, we construct an enterprise address from the **payment xpub** and the
 
 ---
 
-## Quick Start (slim tool)
+## Quick Start
 
 ### 1) Derive addresses only (no signing, no API calls)
 
@@ -66,7 +66,6 @@ python3 consolidate_scavenger.py \
 python3 consolidate_scavenger.py \
   --mnemonic "your 24 or 15 words ..." \
   --destination-addr "addr1qDESTINATION..." \
-  --csv donors.csv \
   --dry-run \
   --out-dir consolidate-logs
 ```
@@ -85,7 +84,6 @@ index,external,address
 python3 consolidate_scavenger.py \
   --mnemonic "your 24 or 15 words ..." \
   --destination-addr "addr1qDESTINATION..." \
-  --csv donors.csv \
   --per-request-delay 1.0 \
   --max429 6 \
   --backoff-base 5.0 \
