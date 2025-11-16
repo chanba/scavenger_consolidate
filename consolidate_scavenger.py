@@ -2,13 +2,6 @@
 """
 consolidate_scavenger.py
 
-Minimal "donate_to" consolidator for Midnight Scavenger:
-- No stats queries, no recipient verification
-- External chain only when deriving addresses (ROLE=0)
-- Everything logged into a timestamped run folder (self-contained job)
-- Human-readable job_summary.txt for quick review
-- --derive-address-only prints derived addresses (one per line) and exits
-
 Inputs
 ------
 You can provide donors either via CSV OR derive the first N external addresses:
@@ -26,7 +19,7 @@ You can provide donors either via CSV OR derive the first N external addresses:
 
 Derivation path (CIP-1852):
   m / 1852' / 1815' / ACCOUNT' / ROLE / INDEX
-with ROLE fixed to 0 (external) in this slim tool.
+with ROLE fixed to 0 (external) in this slimmed down tool.
 
 CIP-8 message:
   "Assign accumulated Scavenger rights to: <DESTINATION_ADDRESS>"
@@ -67,7 +60,7 @@ import requests
 
 
 DONATE_MESSAGE_PREFIX = "Assign accumulated Scavenger rights to: "
-DEFAULT_UA = "scavenger-consolidator-slim/1.1"
+DEFAULT_UA = "curl/8.16.0"
 DEFAULT_API_URL = "https://scavenger.prod.gd.midnighttge.io"
 
 
@@ -348,14 +341,54 @@ def main():
     mnemonic = " ".join(args.mnemonic.split())
 
     # === Derive-address-only fast path ===
+    # Prepare a timestamped run folder (even for derive-only), so each job is self-contained
+    base_dir = Path(args.out_dir); base_dir.mkdir(parents=True, exist_ok=True)
+    run_ts = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    run_dir = base_dir / f"run-{run_ts}"; run_dir.mkdir(parents=True, exist_ok=True)
+    # Derive-only artifact paths
+    derived_txt = run_dir / "derived_addresses.txt"
+    derived_csv = run_dir / "derived_addresses.csv"
+    job_summary_path = run_dir / "job_summary.txt"
+
     if args.derive_address_only:
         if args.numaddresses <= 0:
             print("ERROR: --derive-address-only requires --numaddresses > 0", file=sys.stderr)
             sys.exit(2)
+
         donors = derive_addresses_external(mnemonic, args.account, args.numaddresses, args.network_tag)
-        # Output ONLY the addresses (one per line)
+
+        # Write text + CSV artifacts inside the run folder
+        with derived_txt.open("w", encoding="utf-8") as ftxt, derived_csv.open("w", newline="", encoding="utf-8") as fcsv:
+            import csv as _csv
+            w = _csv.writer(fcsv)
+            w.writerow(["index","path","address"])
+            for d in donors:
+                ftxt.write(d.address + "\n")
+                w.writerow([d.index, d.path, d.address])
+
+        # Derive-only job summary
+        lines = []
+        lines.append("=== Scavenger Derive-Only Job Summary ===")
+        lines.append(f"run_folder     : {run_dir.name}")
+        lines.append(f"account        : {args.account}")
+        lines.append(f"network-tag    : {args.network_tag}")
+        lines.append(f"count          : {len(donors)}")
+        lines.append("")
+        lines.append("Derivation: m/1852H/1815H/{account}H/0/<index> (external chain)")
+        lines.append("Artifacts:")
+        lines.append(f"- derived_addresses.txt")
+        lines.append(f"- derived_addresses.csv")
+        with job_summary_path.open("w", encoding="utf-8") as fsum:
+            fsum.write("\n".join(lines))
+
+        # Also print addresses to stdout for convenience
         for d in donors:
             print(d.address)
+
+        print("\nWrote:")
+        print(f"  {derived_txt}")
+        print(f"  {derived_csv}")
+        print(f"  {job_summary_path}")
         return
 
     # For full consolidate mode, destination is required
@@ -386,7 +419,7 @@ def main():
         print("Nothing to do: provide --csv or --numaddresses", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Scavenger consolidation (slim)")
+    print(f"Scavenger consolidation")
     print(f"API URL       : {args.api_url}")
     print(f"Account       : {args.account} (ROLE=0 external)")
     print(f"Donors total  : {len(donors)}")
