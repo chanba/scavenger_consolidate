@@ -244,6 +244,6 @@ usage: consolidate_scavenger.py
 
 ## Disclaimer
 
-This project is currently a work in progress. It is provided as-is, without any warranty of correctness, functionality, or fitness for any particular purpose. There is no guarantee that it works as intended, and it may contain bugs, incomplete features, or incorrect cryptographic behavior.
+This project is currently a work in progress. It is provided as-is, without any warranty of correctness, functionality, or fitness for any particular purpose. There is no guarantee that it works as intended, and it may contain bugs, incomplete features, or incorrect cryptographic behavior. If this breaks anything for you, you can only blame yourself. This tool worked for me, for my use case, and it's only published for educational purposes.
 
 Do not use this software for security-critical or production purposes. Use at your own risk. Use at your own risk. Verify small batches first (e.g., `--dry-run` and a few addresses) before processing hundreds. Always keep secure backups of your mnemonic and logs. This toolkit is community‑authored and not affiliated with Midnight, or anyone else. This software is licensed under the MIT license. Have at it.
