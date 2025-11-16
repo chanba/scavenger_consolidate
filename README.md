@@ -45,19 +45,43 @@ which cardano-address
 
 ## Derivation model (CIP-1852)
 
-We derive **base (delegated) addresses** on the **external chain** only:
+### Base CIP-1852 layout:
 
-```text
-m / 1852' / 1815' / ACCOUNT' / 0 / INDEX
-```
+m / 1852' / 1815' / ACCOUNT' / ROLE / INDEX
 
-Internally:
+This tool works on the external chain (ROLE = 0) only and derives base (delegated) addresses by:
+Deriving payment keys at ROLE / INDEX.
+Deriving a stake key at ROLE = 2, INDEX = 0 per account.
+Combining payment + stake to form a base addr1... address.
 
-1. A payment xpub is derived at role/index: `0 / INDEX`
-2. An enterprise payment address is built from the payment xpub
-3. Delegation is added via the stake xpub (`2/0`) to produce a **base addr1…**
+### There are two supported derivation modes:
 
-All donors are treated as **ROLE = 0 (external)**.
+## Standard mode (default)
+payment: m / 1852' / 1815' / ACCOUNT' / 0 / INDEX
+stake:   m / 1852' / 1815' / ACCOUNT' / 2 / 0
+
+--account chooses ACCOUNT (default 0).
+--numaddresses N derives INDEX = 0..N-1.
+
+## Nocturne-compatible mode (--nocturne-compat)
+
+Some external tools derive one address per account:
+payment: m / 1852' / 1815' / (ACCOUNT + i)' / 0 / 0
+stake:   m / 1852' / 1815' / (ACCOUNT + i)' / 2 / 0
+
+For --account A and --numaddresses N, we derive:
+
+address 0 → account A + 0, index 0
+address 1 → account A + 1, index 0
+address 2 → account A + 2, index 0
+…
+
+This matches the behavior of tools that show “index N” as account N, index 0.
+Enable with:
+
+--nocturne-compat
+
+Note: --nocturne-compat only affects derived addresses (--numaddresses and --derive-address-only). CSV behavior is unchanged and uses standard ACCOUNT' / 0 / INDEX.
 
 ---
 
