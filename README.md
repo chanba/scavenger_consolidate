@@ -47,7 +47,9 @@ which cardano-address
 
 ### Base CIP-1852 layout:
 
-m / 1852' / 1815' / ACCOUNT' / ROLE / INDEX
+  ```
+  m / 1852' / 1815' / ACCOUNT' / ROLE / INDEX
+  ```
 
 This tool works on the external chain (ROLE = 0) only and derives base (delegated) addresses by:
 Deriving payment keys at ROLE / INDEX.
@@ -66,15 +68,19 @@ stake:   m / 1852' / 1815' / ACCOUNT' / 2 / 0
 ## Nocturne-compatible mode (--nocturne-compat)
 
 Some external tools derive one address per account:
+```
 payment: m / 1852' / 1815' / (ACCOUNT + i)' / 0 / 0
 stake:   m / 1852' / 1815' / (ACCOUNT + i)' / 2 / 0
+```
 
 For --account A and --numaddresses N, we derive:
 
+```
 address 0 → account A + 0, index 0
 address 1 → account A + 1, index 0
 address 2 → account A + 2, index 0
 …
+```
 
 This matches the behavior of tools that show “index N” as account N, index 0.
 Enable with:
